@@ -1,49 +1,76 @@
 window.addEventListener("DOMContentLoaded", () => {
+    const form = document.querySelector('form');
 
-    function req() {
+    function req(e) {
+        e.preventDefault();
+
+        let formData = new FormData(form);
+        // formData.append("id", Math.random());
+
+        // let obj = {};
+        // formData.forEach((value, key) => {
+        //     obj[key] =value;
+        // });
+        // let json = JSON.stringify(obj);
+
         // const reqest = new XMLHttpRequest();
-        // reqest.open('GET', 'http://localhost:3000/people');
-        // reqest.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
-        // reqest.send();
+        // reqest.open('POST', './api.php');
+        // // reqest.setRequestHeader('Content-Type', 'multipart/form-data');
+        // reqest.send(formData);
         // reqest.addEventListener('load', function () {
-        //     if (reqest.readyState === 4 && reqest.status === 200) {
-        //         let data = JSON.parse(reqest.response);
-        //         console.log(data);
-        //         createCards(data);
+        //     if (reqest.status === 200) {
+        //         // let data = JSON.parse(reqest.response);
+        //         console.log(reqest.response);
+        //         // createCards(data);
 
         //     } else {
         //         console.error('что-то пошло не так');
         //     }
         // });
 
-        getResource('http://localhost:3000/people')
-            .then(data => createCards(data.data))
-            .catch(err => console.error(err));
+        // getResource('./api.php', formData)
+        //     .then(data => console.log(data))
+        //     .catch(err => console.error(err));
 
-        this.remove();
+        // axios.post('http://localhost:3000/people', obj);
+        axios({
+            method: 'post',
+            url: './api.php',
+            data: formData,
+            headers: {'content-type': 'multipart/form-data'}
+        })
+        .then(data => console.log(data.data));
+
+        // this.remove();
     }
 
-    document.querySelector('button').addEventListener('click', req, {'once': true});
+    form.addEventListener('submit', (e) => req(e), {'once': true});
 
-    // async function getResource(url) {
-    //     const res = await fetch(`${url}`);
+    async function getResource(url, data) {
+        const res = await fetch(`${url}`, {
+            method: 'POST',
+            // headers: {
+            //     'Content-Type': 'multipart/form-data'
+            // },
+            body: data
+        });
 
-    //     if (!res.ok) {
-    //         throw new Error(`Could not fetch ${url}, status: ${res.status}`);
-    //     }
-
-    //     return await res.json();
-    // }
-
-    async function getResource(url) {
-        const res = await axios(`${url}`);
-
-        if (res.status !== 200) {
+        if (!res.ok) {
             throw new Error(`Could not fetch ${url}, status: ${res.status}`);
         }
 
-        return  res;
+        return await res.text();
     }
+
+    // async function getResource(url) {
+    //     const res = await axios(`${url}`);
+
+    //     if (res.status !== 200) {
+    //         throw new Error(`Could not fetch ${url}, status: ${res.status}`);
+    //     }
+
+    //     return  res;
+    // }
 
     function createCards(response) {
         response.forEach(item => {
